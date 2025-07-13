@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>P2Pシューティングゲーム 高度版</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <h1>P2Pシューティングゲーム 高度版</h1>
+
+  <div id="gameContainer">
+    <canvas id="gameCanvas" width="800" height="500"></canvas>
+    <div id="uiPanel">
+      <div>
+        <div>あなたのHP</div>
+        <div class="hpBar"><div id="myHpBar" class="hpBarInner"></div></div>
+      </div>
+      <div>
+        <div>相手のHP</div>
+        <div class="hpBar"><div id="opponentHpBar" class="hpBarInner"></div></div>
+      </div>
+      <div>
+        <div>ラウンド: <span id="roundDisplay">1</span> / 3</div>
+        <div>制限時間: <span id="timerDisplay">60</span>秒</div>
+      </div>
+      <div>
+        <div>スコア</div>
+        <div>あなた: <span id="myScore">0</span></div>
+        <div>相手: <span id="opponentScore">0</span></div>
+      </div>
+      <div>
+        <div>武器切替（数字キー 1,2）</div>
+        <div id="weaponList">
+          <span data-weapon="normal" class="active">通常弾</span>
+          <span data-weapon="explosion">爆発弾</span>
+        </div>
+      </div>
+      <div>
+        <div>チャット</div>
+        <div id="chatBox"></div>
+        <input id="chatInput" placeholder="Enterで送信" />
+      </div>
+    </div>
+  </div>
+
+  <div id="controls">
+    <button id="createOfferBtn">オファー作成</button>
+    <button id="acceptOfferBtn">オファー受諾</button><br />
+    <textarea id="localSDP" placeholder="ここにシグナリング情報が表示されます"></textarea><br />
+    <textarea id="remoteSDP" placeholder="相手のシグナリング情報をここに貼り付けてください"></textarea><br />
+    <button id="setRemoteSDPBtn">接続開始</button>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
