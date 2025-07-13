@@ -693,4 +693,111 @@ setRemoteSDPBtn.onclick = async () => {
   const remoteDesc = JSON.parse(remoteSDPTextarea.value);
   await pc.setRemoteDescription(remoteDesc);
   if (round === 1) startRound();
+  // --- 変数宣言など省略 ---
+// canvasやプレイヤー、弾、壁、アイテム、通信関連変数は元のまま
+
+// UI要素取得
+const connectionStatusEl = document.getElementById('connectionStatus');
+const createOfferBtn = document.getElementById('createOfferBtn');
+const acceptOfferBtn = document.getElementById('acceptOfferBtn');
+const setRemoteSDPBtn = document.getElementById('setRemoteSDPBtn');
+const localSDPTextarea = document.getElementById('localSDP');
+const remoteSDPTextarea = document.getElementById('remoteSDP');
+const chatInput = document.getElementById('chatInput');
+const chatMessages = document.getElementById('chatMessages');
+
+// WebRTC関連
+let pc = null;
+let dc = null;
+let connected = false;
+
+// --- 接続成功表示関数 ---
+function showConnectionStatus() {
+  connectionStatusEl.style.display = 'block';
+  setTimeout(() => {
+    connectionStatusEl.style.display = 'none';
+  }, 3000);
+}
+
+// --- チャットメッセージ追加関数 ---
+function addChatMessage(msg) {
+  const div = document.createElement('div');
+  div.textContent = msg;
+  chatMessages.appendChild(div);
+  chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+// --- WebRTCピア接続セットアップ ---
+function setupPeerConnection(isOfferer) {
+  pc = new RTCPeerConnection({
+    iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
+  });
+
+  if (isOfferer) {
+    dc = pc.createDataChannel('game');
+    setupDataChannel();
+  } else {
+    pc.ondatachannel = event => {
+      dc = event.channel;
+      setupDataChannel();
+    };
+  }
+
+  pc.onicecandidate = event => {
+    if (event.candidate === null) {
+      localSDPTextarea.value = JSON.stringify(pc.localDescription);
+    }
+  };
+}
+
+// --- データチャネルイベント設定 ---
+function setupDataChannel() {
+  dc.onopen = () => {
+    connected = true;
+    addChatMessage('[接続完了]');
+    showConnectionStatus();  // ここで接続成功表示
+    // ゲーム開始処理などあればここで
+  };
+
+  dc.onmessage = e => {
+    // メッセージ処理（省略）
+  };
+
+  dc.onclose = () => {
+    connected = false;
+    addChatMessage('[接続切断]');
+  };
+
+  dc.onerror = e => {
+    addChatMessage('[通信エラー]');
+  };
+}
+
+// --- UIボタンイベント ---
+
+createOfferBtn.onclick = async () => {
+  setupPeerConnection(true);
+  const offer = await pc.createOffer();
+  await pc.setLocalDescription(offer);
+  // localSDPTextareaにセットは onicecandidateで行う
+};
+
+acceptOfferBtn.onclick = async () => {
+  setupPeerConnection(false);
+  const offer = JSON.parse(remoteSDPTextarea.value);
+  await pc.setRemoteDescription(offer);
+  const answer = await pc.createAnswer();
+  await pc.setLocalDescription(answer);
+  localSDPTextarea.value = JSON.stringify(pc.localDescription);
+};
+
+setRemoteSDPBtn.onclick = async () => {
+  const remoteDesc = JSON.parse(remoteSDPTextarea.value);
+  await pc.setRemoteDescription(remoteDesc);
+  // ここでゲーム開始できるなら処理を追加
+};
+
+// 以下ゲーム本体の処理、キー操作、描画、更新ループなどは元のまま
+
+
 };
